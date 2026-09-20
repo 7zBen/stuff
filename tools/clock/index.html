@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Clock</title>
   <meta name="description" content="A full-screen live clock." />
   <meta name="referrer" content="no-referrer" />
@@ -47,7 +47,15 @@
     }
     .secs { font-size: .38em; letter-spacing: 0; color: var(--muted); font-weight: 500; }
     .date { margin: 18px 0 0; color: var(--muted); font-size: clamp(16px, 2.4vw, 26px); }
+    html[data-theme="light"] body {
+      background:
+        radial-gradient(1200px 600px at 20% -10%, #d7e3f6 0%, transparent 55%),
+        radial-gradient(900px 500px at 110% 110%, #e6edf8 0%, transparent 50%),
+        var(--bg);
+    }
   </style>
+  <link rel="stylesheet" href="../../shared/site.css" />
+  <script src="../../shared/site.js"></script>
 </head>
 <body>
   <div class="bar">

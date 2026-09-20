@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>Slide</title>
   <meta name="description" content="Join the tiles." />
   <meta name="referrer" content="no-referrer" />
@@ -55,6 +55,8 @@
     .overlay.show { display: grid; }
     button.full { width: 100%; margin-top: 14px; border-radius: 10px; padding: 10px; }
   </style>
+  <link rel="stylesheet" href="../../shared/site.css" />
+  <script src="../../shared/site.js"></script>
 </head>
 <body>
   <div class="bar">
@@ -97,7 +99,7 @@
       best = parseInt(localStorage.getItem("slide-best") || "0", 10) || 0;
       muted = localStorage.getItem("slide-mute") === "1";
       document.getElementById("best").textContent = String(best);
-      muteBtn.textContent = muted ? "Muted" : "Sound on";
+      setMuteIcon(muteBtn, muted);
 
       function unlockAudio() {
         if (!audioCtx) {
@@ -299,7 +301,7 @@
         unlockAudio();
         muted = !muted;
         localStorage.setItem("slide-mute", muted ? "1" : "0");
-        muteBtn.textContent = muted ? "Muted" : "Sound on";
+        setMuteIcon(muteBtn, muted);
         if (master) master.gain.setTargetAtTime(muted ? 0 : 0.2, audioCtx.currentTime, 0.02);
       };
       document.getElementById("restart").onclick = reset;

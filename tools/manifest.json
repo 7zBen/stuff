@@ -9,6 +9,11 @@
       "slug": "clock",
       "name": "Clock",
       "description": "A live full-screen clock."
+    },
+    {
+      "slug": "link-to-qr",
+      "name": "Link to QR",
+      "description": "Turn a link into a QR code. Stays on this device."
     }
   ]
 }

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>Candy Crush</title>
   <meta name="referrer" content="no-referrer" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%23171a21'/%3E%3Ccircle cx='5' cy='6' r='2.2' fill='%23fb7185'/%3E%3Ccircle cx='11' cy='6' r='2.2' fill='%236ea8ff'/%3E%3Ccircle cx='8' cy='11' r='2.2' fill='%23ffb020'/%3E%3C/svg%3E" />
@@ -164,6 +164,8 @@
       cursor: pointer; font: inherit; font-size: 13px;
     }
   </style>
+  <link rel="stylesheet" href="../../shared/site.css" />
+  <script src="../../shared/site.js"></script>
 </head>
 <body>
   <div class="bar">
@@ -198,7 +200,7 @@
       const muteBtn = document.getElementById("mute");
       muted = localStorage.getItem("candy-mute") === "1";
       best = parseInt(localStorage.getItem("candy-best") || "1", 10) || 1;
-      muteBtn.textContent = muted ? "Muted" : "Sound on";
+      setMuteIcon(muteBtn, muted);
 
       for (let i = 0; i < N * N; i++) {
         const b = document.createElement("button");
@@ -812,7 +814,7 @@
         unlock();
         muted = !muted;
         localStorage.setItem("candy-mute", muted ? "1" : "0");
-        muteBtn.textContent = muted ? "Muted" : "Sound on";
+        setMuteIcon(muteBtn, muted);
         if (master) master.gain.setTargetAtTime(muted ? 0 : 0.16, audioCtx.currentTime, 0.02);
       };
       window.addEventListener("resize", function () { if (grid) syncPieces(false); });

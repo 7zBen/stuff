@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>7zBen</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Home</title>
   <meta name="description" content="Tools & Games" />
   <meta name="referrer" content="no-referrer" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%23171a21'/%3E%3Ccircle cx='8' cy='8' r='3.2' fill='none' stroke='%236ea8ff' stroke-width='1.6'/%3E%3C/svg%3E" />
@@ -23,9 +23,8 @@
     html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     body { min-height: 100vh; }
     .wrap { max-width: 880px; margin: 0 auto; padding: 48px 20px 80px; }
-    header { margin-bottom: 36px; }
-    .brand { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
-    h1 { font-size: 36px; letter-spacing: -.03em; margin: 0 0 8px; }
+    header { margin-bottom: 36px; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+    h1 { font-size: clamp(28px, 6vw, 36px); letter-spacing: -.03em; margin: 0 0 8px; }
     .lede { color: var(--muted); max-width: 46ch; margin: 0; }
     section { margin-bottom: 36px; }
     h2.section {
@@ -40,7 +39,7 @@
       background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
       padding: 18px 18px 16px; box-shadow: var(--shadow); min-height: 132px;
     }
-    a.card:hover { border-color: #3d4c68; background: var(--panel-2); }
+    a.card:hover { border-color: var(--line-hover); background: var(--panel-2); }
     a.card h3 { margin: 0 0 8px; font-size: 18px; letter-spacing: -.02em; }
     a.card p { margin: 0; color: var(--muted); font-size: 14px; }
     .slug { display: inline-block; margin-top: 14px; font-size: 11px; color: #6d778a; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
@@ -57,15 +56,19 @@
     @media (max-width: 520px) {
       .grid { grid-template-columns: 1fr; }
       .grid > :last-child { grid-column: auto; }
+      .wrap { padding: 28px 14px 64px; }
     }
   </style>
+  <link rel="stylesheet" href="shared/site.css" />
+  <script src="shared/site.js"></script>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <p class="brand">7zBen</p>
-      <h1 id="siteTitle">Home</h1>
-      <p class="lede" id="siteDesc">Tools & Games</p>
+      <div>
+        <h1 id="siteTitle">Home</h1>
+        <p class="lede" id="siteDesc">Tools & Games</p>
+      </div>
     </header>
 
     <section>
@@ -79,8 +82,6 @@
       <p class="status" id="gamesStatus">Loading…</p>
       <div class="grid" id="gamesGrid"></div>
     </section>
-
-    <footer><a href="https://github.com/7zBen">github.com/7zBen</a></footer>
   </div>
   <script>
     function humanize(slug) {
