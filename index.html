@@ -44,9 +44,6 @@
     a.card p { margin: 0; color: var(--muted); font-size: 14px; }
     .slug { display: inline-block; margin-top: 14px; font-size: 11px; color: #6d778a; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
     .status { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
-    footer { margin-top: 16px; color: var(--muted); font-size: 13px; }
-    footer a { color: var(--accent); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
     @media (max-width: 720px) {
       .grid { grid-template-columns: repeat(2, 1fr); }
       .grid > :last-child:nth-child(3n + 1),
@@ -238,6 +235,7 @@
         loadSection(owner, repo, base, "tools", "tool.json", document.getElementById("toolsGrid"), document.getElementById("toolsStatus")),
         loadSection(owner, repo, base, "games", "game.json", document.getElementById("gamesGrid"), document.getElementById("gamesStatus"))
       ]);
+      document.querySelectorAll("a[href*='github.com/7zBen'], footer").forEach(function (el) { el.remove(); });
     })();
   </script>
 </body>

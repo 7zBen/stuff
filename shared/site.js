@@ -65,9 +65,10 @@
   function panic() {
     if (!/\/games\//.test(location.pathname) || /\/games\/slope(\/|$)/.test(location.pathname)) return;
     document.body.classList.add("game-page");
+    var realTitle = document.title;
     var cover = document.createElement("div");
     cover.className = "cover";
-    cover.innerHTML = '<div class="calc-top" id="calcDisp">0</div><div class="calc-pad" id="calcPad"></div>';
+    cover.innerHTML = '<div class="calc"><p class="calc-brand">Calculator</p><div class="calc-top"><span class="calc-sub" id="calcSub"></span><span id="calcDisp">0</span></div><div class="calc-pad" id="calcPad"></div></div>';
     document.body.appendChild(cover);
     var btn = document.createElement("button");
     btn.type = "button";
@@ -76,42 +77,88 @@
     btn.textContent = "!";
     document.body.appendChild(btn);
 
-    var acc = 0, cur = "0", op = null, fresh = true;
+    var acc = null, cur = "0", op = null, fresh = true;
     var disp = cover.querySelector("#calcDisp");
-    function show(v) { disp.textContent = String(v); }
-    function n() { return parseFloat(cur); }
-    function applyOp() {
-      var x = n();
+    var sub = cover.querySelector("#calcSub");
+    function fmt(x) {
+      if (!isFinite(x)) return "Error";
+      var s = String(parseFloat(Number(x).toPrecision(10)));
+      return s;
+    }
+    function show() {
+      disp.textContent = cur;
+      sub.textContent = acc != null && op ? fmt(acc) + " " + op : "";
+    }
+    function val() { return parseFloat(cur) || 0; }
+    function apply() {
+      var x = val();
       if (op === "+") acc += x;
-      else if (op === "-") acc -= x;
+      else if (op === "−") acc -= x;
       else if (op === "×") acc *= x;
-      else if (op === "÷") acc = x === 0 ? 0 : acc / x;
+      else if (op === "÷") acc = x === 0 ? NaN : acc / x;
+      else if (op === "^") acc = Math.pow(acc, x);
       else acc = x;
-      cur = String(acc);
-      show(cur);
+      cur = fmt(acc);
+      op = null;
       fresh = true;
     }
-    var keys = ["AC","±","%","÷","7","8","9","×","4","5","6","-","1","2","3","+","0",".","="];
-    keys.forEach(function (k) {
+    function deg() { return val() * Math.PI / 180; }
+    var keys = [
+      { k: "sin", cls: "fn", fn: function () { cur = fmt(Math.sin(deg())); fresh = true; } },
+      { k: "cos", cls: "fn", fn: function () { cur = fmt(Math.cos(deg())); fresh = true; } },
+      { k: "tan", cls: "fn", fn: function () { cur = fmt(Math.tan(deg())); fresh = true; } },
+      { k: "ln", cls: "fn", fn: function () { cur = fmt(Math.log(val())); fresh = true; } },
+      { k: "log", cls: "fn", fn: function () { cur = fmt(Math.log10(val())); fresh = true; } },
+      { k: "π", cls: "fn", fn: function () { cur = fmt(Math.PI); fresh = true; } },
+      { k: "e", cls: "fn", fn: function () { cur = fmt(Math.E); fresh = true; } },
+      { k: "√", cls: "fn", fn: function () { cur = fmt(Math.sqrt(val())); fresh = true; } },
+      { k: "x²", cls: "fn", fn: function () { cur = fmt(val() * val()); fresh = true; } },
+      { k: "xʸ", cls: "fn", fn: function () { if (acc != null && op) apply(); acc = val(); op = "^"; fresh = true; } },
+      { k: "AC", cls: "fn", fn: function () { acc = null; cur = "0"; op = null; fresh = true; } },
+      { k: "±", cls: "fn", fn: function () { cur = fmt(-val()); } },
+      { k: "%", cls: "fn", fn: function () { cur = fmt(val() / 100); fresh = true; } },
+      { k: "1/x", cls: "fn", fn: function () { cur = fmt(val() === 0 ? NaN : 1 / val()); fresh = true; } },
+      { k: "÷", cls: "op", fn: function () { if (acc != null && op && !fresh) apply(); acc = val(); op = "÷"; fresh = true; } },
+      { k: "7" }, { k: "8" }, { k: "9" },
+      { k: "×", cls: "op", fn: function () { if (acc != null && op && !fresh) apply(); acc = val(); op = "×"; fresh = true; } },
+      { k: "−", cls: "op", fn: function () { if (acc != null && op && !fresh) apply(); acc = val(); op = "−"; fresh = true; } },
+      { k: "4" }, { k: "5" }, { k: "6" },
+      { k: "+", cls: "op", fn: function () { if (acc != null && op && !fresh) apply(); acc = val(); op = "+"; fresh = true; } },
+      { k: "n!", cls: "fn", fn: function () {
+        var n = Math.floor(val()), r = 1;
+        if (n < 0 || n > 170) cur = "Error";
+        else { for (var i = 2; i <= n; i++) r *= i; cur = fmt(r); }
+        fresh = true;
+      } },
+      { k: "1" }, { k: "2" }, { k: "3" },
+      { k: ".", fn: function () { if (fresh) { cur = "0."; fresh = false; } else if (cur.indexOf(".") < 0) cur += "."; } },
+      { k: "=", cls: "eq", fn: function () { if (op) apply(); acc = null; } },
+      { k: "0" },
+      { k: "00", fn: function () {
+        if (fresh || cur === "0" || cur === "Error") { cur = "0"; fresh = false; }
+        else cur += "00";
+      } },
+      { k: "Rand", cls: "fn", fn: function () { cur = fmt(Math.random()); fresh = true; } },
+      { k: "eˣ", cls: "fn", fn: function () { cur = fmt(Math.exp(val())); fresh = true; } },
+      { k: "10ˣ", cls: "fn", fn: function () { cur = fmt(Math.pow(10, val())); fresh = true; } }
+    ];
+    var pad = cover.querySelector("#calcPad");
+    keys.forEach(function (item) {
       var b = document.createElement("button");
       b.type = "button";
-      b.textContent = k;
-      if (k === "0") b.className = "zero";
-      if ("÷×-+=".indexOf(k) >= 0) b.className = (k === "0" ? "zero " : "") + "op";
-      if (k === "=") b.className = "op";
-      if (k === "AC" || k === "±" || k === "%") b.className = "fn";
+      b.textContent = item.k;
+      if (item.cls) b.className = item.cls;
       b.addEventListener("click", function () {
-        if (k === "AC") { acc = 0; cur = "0"; op = null; fresh = true; show(cur); return; }
-        if (k === "±") { cur = String(-n()); show(cur); return; }
-        if (k === "%") { cur = String(n() / 100); show(cur); return; }
-        if (k === "=") { applyOp(); op = null; return; }
-        if ("÷×-+".indexOf(k) >= 0) { if (!fresh) applyOp(); else acc = n(); op = k; fresh = true; return; }
-        if (k === ".") { if (cur.indexOf(".") < 0) { cur += fresh ? "0." : "."; fresh = false; show(cur); } return; }
-        if (fresh) { cur = k; fresh = false; } else cur = (cur === "0" ? k : cur + k);
-        show(cur);
+        if (item.fn) item.fn();
+        else if (/^\d$/.test(item.k)) {
+          if (fresh || cur === "0" || cur === "Error") { cur = item.k; fresh = false; }
+          else cur += item.k;
+        }
+        show();
       });
-      cover.querySelector("#calcPad").appendChild(b);
+      pad.appendChild(b);
     });
+    show();
 
     function setOn(on) {
       cover.classList.toggle("show", on);
@@ -123,6 +170,10 @@
       if (!cover.classList.contains("show")) return;
       e.stopPropagation();
       if (e.key === "Escape") { setOn(false); e.preventDefault(); }
+      var map = { "/": "÷", "*": "×", "-": "−", "+": "+", Enter: "=", Escape: "AC" };
+      var label = map[e.key] || e.key;
+      var hit = Array.prototype.find.call(pad.children, function (c) { return c.textContent === label; });
+      if (hit) { e.preventDefault(); hit.click(); }
     }, true);
   }
 
