@@ -14,6 +14,11 @@
       "slug": "link-to-qr",
       "name": "Link to QR",
       "description": "Turn a link into a QR code. Stays on this device."
+    },
+    {
+      "slug": "meta-extractor",
+      "name": "Meta Tag / Favicon Extractor",
+      "description": "Enter a URL to preview its title, description, thumbnail, and favicon."
     }
   ]
 }

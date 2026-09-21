@@ -29,7 +29,7 @@
       font-weight: 700; font-size: 22px; text-transform: uppercase; background: var(--panel);
       transition: transform 160ms ease;
     }
-    .tile.filled { border-color: #3d4c68; }
+    .tile.filled { border-color: var(--line-hover); }
     .tile.pop { transform: scale(1.08); }
     .tile.flip { animation: flip 420ms ease; }
     @keyframes flip { 0% { transform: rotateX(0); } 50% { transform: rotateX(90deg); } 100% { transform: rotateX(0); } }
@@ -39,7 +39,7 @@
     .kb { display: grid; gap: 6px; }
     .kb-row { display: flex; gap: 5px; justify-content: center; }
     .kb button {
-      flex: 1; min-height: 44px; max-width: 42px; border: 0; border-radius: 8px; background: #2a3140;
+      flex: 1; min-height: 44px; max-width: 42px; border: 0; border-radius: 8px; background: var(--key);
       color: var(--text); font: 600 13px/1 inherit; cursor: pointer; text-transform: uppercase;
       touch-action: manipulation; -webkit-user-select: none; user-select: none;
       -webkit-tap-highlight-color: transparent;
@@ -47,7 +47,7 @@
     .kb button.wide { max-width: 64px; font-size: 12px; }
     .kb button.good { background: var(--good); color: #0f1115; }
     .kb button.mid { background: var(--mid); color: #0f1115; }
-    .kb button.bad { background: #12151c; color: var(--muted); }
+    .kb button.bad { background: var(--key-bad); color: var(--text); }
     .actions { margin-top: 12px; }
     .actions button {
       width: 100%; appearance: none; background: var(--panel); border: 1px solid var(--line); color: var(--text);

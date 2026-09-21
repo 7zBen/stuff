@@ -10,10 +10,10 @@
   function apply(t) { document.documentElement.setAttribute("data-theme", t); }
   apply(preferred());
 
-  var SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
-  var MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z"/></svg>';
-  var VOL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M18.5 7a8 8 0 0 1 0 10"/></svg>';
-  var MUTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M22 9l-6 6M16 9l6 6"/></svg>';
+  var SUN = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M3 12h2M19 12h2M5.2 18.8l1.4-1.4M17.4 6.6l1.4-1.4"/></svg>';
+  var MOON = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 3.3A8.5 8.5 0 1 0 20.7 14 7 7 0 0 1 16 3.3z"/></svg>';
+  var VOL = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h3l5 4V5L7 9H4z"/><path d="M16 9.5a3.5 3.5 0 0 1 0 5"/><path d="M18.2 7.2a6.5 6.5 0 0 1 0 9.6"/></svg>';
+  var MUTE = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h3l5 4V5L7 9H4z"/><path d="M21 9l-6 6M15 9l6 6"/></svg>';
 
   window.setMuteIcon = function (btn, muted) {
     if (!btn) return;
@@ -64,11 +64,13 @@
 
   function panic() {
     if (!/\/games\//.test(location.pathname) || /\/games\/slope(\/|$)/.test(location.pathname)) return;
+    var pc = window.matchMedia("(hover: hover) and (pointer: fine)").matches && window.innerWidth >= 801;
+    if (!pc) return;
     document.body.classList.add("game-page");
     var realTitle = document.title;
     var cover = document.createElement("div");
     cover.className = "cover";
-    cover.innerHTML = '<div class="calc"><p class="calc-brand">Calculator</p><div class="calc-top"><span class="calc-sub" id="calcSub"></span><span id="calcDisp">0</span></div><div class="calc-pad" id="calcPad"></div></div>';
+    cover.innerHTML = '<div class="calc"><div class="calc-bar"><span>Calculator</span><button type="button" id="sciToggle">Scientific</button></div><div class="calc-top"><span class="calc-sub" id="calcSub"></span><span id="calcDisp">0</span></div><div class="calc-pad" id="calcPad"></div></div>';
     document.body.appendChild(cover);
     var btn = document.createElement("button");
     btn.type = "button";
@@ -77,20 +79,27 @@
     btn.textContent = "!";
     document.body.appendChild(btn);
 
-    var acc = null, cur = "0", op = null, fresh = true;
+    var acc = null, cur = "0", op = null, fresh = true, sci = false;
     var disp = cover.querySelector("#calcDisp");
     var sub = cover.querySelector("#calcSub");
+    var pad = cover.querySelector("#calcPad");
+    var sciBtn = cover.querySelector("#sciToggle");
     function fmt(x) {
       if (!isFinite(x)) return "Error";
-      var s = String(parseFloat(Number(x).toPrecision(10)));
-      return s;
+      return String(parseFloat(Number(x).toPrecision(12)));
     }
     function show() {
       disp.textContent = cur;
       sub.textContent = acc != null && op ? fmt(acc) + " " + op : "";
     }
     function val() { return parseFloat(cur) || 0; }
-    function apply() {
+    function bin(next) {
+      if (acc != null && op && !fresh) applyOp();
+      acc = val();
+      op = next;
+      fresh = true;
+    }
+    function applyOp() {
       var x = val();
       if (op === "+") acc += x;
       else if (op === "−") acc -= x;
@@ -103,61 +112,81 @@
       fresh = true;
     }
     function deg() { return val() * Math.PI / 180; }
-    var keys = [
-      { k: "sin", cls: "fn", fn: function () { cur = fmt(Math.sin(deg())); fresh = true; } },
-      { k: "cos", cls: "fn", fn: function () { cur = fmt(Math.cos(deg())); fresh = true; } },
-      { k: "tan", cls: "fn", fn: function () { cur = fmt(Math.tan(deg())); fresh = true; } },
-      { k: "ln", cls: "fn", fn: function () { cur = fmt(Math.log(val())); fresh = true; } },
-      { k: "log", cls: "fn", fn: function () { cur = fmt(Math.log10(val())); fresh = true; } },
-      { k: "π", cls: "fn", fn: function () { cur = fmt(Math.PI); fresh = true; } },
-      { k: "e", cls: "fn", fn: function () { cur = fmt(Math.E); fresh = true; } },
-      { k: "√", cls: "fn", fn: function () { cur = fmt(Math.sqrt(val())); fresh = true; } },
-      { k: "x²", cls: "fn", fn: function () { cur = fmt(val() * val()); fresh = true; } },
-      { k: "xʸ", cls: "fn", fn: function () { if (acc != null && op) apply(); acc = val(); op = "^"; fresh = true; } },
-      { k: "AC", cls: "fn", fn: function () { acc = null; cur = "0"; op = null; fresh = true; } },
-      { k: "±", cls: "fn", fn: function () { cur = fmt(-val()); } },
-      { k: "%", cls: "fn", fn: function () { cur = fmt(val() / 100); fresh = true; } },
-      { k: "1/x", cls: "fn", fn: function () { cur = fmt(val() === 0 ? NaN : 1 / val()); fresh = true; } },
-      { k: "÷", cls: "op", fn: function () { if (acc != null && op && !fresh) apply(); acc = val(); op = "÷"; fresh = true; } },
-      { k: "7" }, { k: "8" }, { k: "9" },
-      { k: "×", cls: "op", fn: function () { if (acc != null && op && !fresh) apply(); acc = val(); op = "×"; fresh = true; } },
-      { k: "−", cls: "op", fn: function () { if (acc != null && op && !fresh) apply(); acc = val(); op = "−"; fresh = true; } },
-      { k: "4" }, { k: "5" }, { k: "6" },
-      { k: "+", cls: "op", fn: function () { if (acc != null && op && !fresh) apply(); acc = val(); op = "+"; fresh = true; } },
-      { k: "n!", cls: "fn", fn: function () {
-        var n = Math.floor(val()), r = 1;
-        if (n < 0 || n > 170) cur = "Error";
-        else { for (var i = 2; i <= n; i++) r *= i; cur = fmt(r); }
-        fresh = true;
-      } },
-      { k: "1" }, { k: "2" }, { k: "3" },
-      { k: ".", fn: function () { if (fresh) { cur = "0."; fresh = false; } else if (cur.indexOf(".") < 0) cur += "."; } },
-      { k: "=", cls: "eq", fn: function () { if (op) apply(); acc = null; } },
-      { k: "0" },
-      { k: "00", fn: function () {
-        if (fresh || cur === "0" || cur === "Error") { cur = "0"; fresh = false; }
-        else cur += "00";
-      } },
-      { k: "Rand", cls: "fn", fn: function () { cur = fmt(Math.random()); fresh = true; } },
-      { k: "eˣ", cls: "fn", fn: function () { cur = fmt(Math.exp(val())); fresh = true; } },
-      { k: "10ˣ", cls: "fn", fn: function () { cur = fmt(Math.pow(10, val())); fresh = true; } }
-    ];
-    var pad = cover.querySelector("#calcPad");
-    keys.forEach(function (item) {
-      var b = document.createElement("button");
-      b.type = "button";
-      b.textContent = item.k;
-      if (item.cls) b.className = item.cls;
-      b.addEventListener("click", function () {
-        if (item.fn) item.fn();
-        else if (/^\d$/.test(item.k)) {
-          if (fresh || cur === "0" || cur === "Error") { cur = item.k; fresh = false; }
-          else cur += item.k;
-        }
-        show();
+    function digit(d) {
+      if (fresh || cur === "0" || cur === "Error") { cur = d === "." ? "0." : d; fresh = false; }
+      else if (d === ".") { if (cur.indexOf(".") < 0) cur += "."; }
+      else cur += d;
+    }
+    function build() {
+      pad.textContent = "";
+      var keys = sci ? [
+        { k: "sin", cls: "fn", fn: function () { cur = fmt(Math.sin(deg())); fresh = true; } },
+        { k: "cos", cls: "fn", fn: function () { cur = fmt(Math.cos(deg())); fresh = true; } },
+        { k: "tan", cls: "fn", fn: function () { cur = fmt(Math.tan(deg())); fresh = true; } },
+        { k: "ln", cls: "fn", fn: function () { cur = fmt(Math.log(val())); fresh = true; } },
+        { k: "log", cls: "fn", fn: function () { cur = fmt(Math.log10(val())); fresh = true; } },
+        { k: "π", cls: "fn", fn: function () { cur = fmt(Math.PI); fresh = true; } },
+        { k: "e", cls: "fn", fn: function () { cur = fmt(Math.E); fresh = true; } },
+        { k: "√", cls: "fn", fn: function () { cur = fmt(Math.sqrt(val())); fresh = true; } },
+        { k: "x²", cls: "fn", fn: function () { cur = fmt(val() * val()); fresh = true; } },
+        { k: "xʸ", cls: "fn", fn: function () { bin("^"); } },
+        { k: "AC", cls: "fn", fn: function () { acc = null; cur = "0"; op = null; fresh = true; } },
+        { k: "CE", cls: "fn", fn: function () { cur = "0"; fresh = true; } },
+        { k: "%", cls: "fn", fn: function () { cur = fmt(val() / 100); fresh = true; } },
+        { k: "1/x", cls: "fn", fn: function () { cur = fmt(val() === 0 ? NaN : 1 / val()); fresh = true; } },
+        { k: "÷", cls: "op", fn: function () { bin("÷"); } },
+        { k: "7" }, { k: "8" }, { k: "9" },
+        { k: "n!", cls: "fn", fn: function () {
+          var n = Math.floor(val()), r = 1;
+          if (n < 0 || n > 170) cur = "Error";
+          else { for (var i = 2; i <= n; i++) r *= i; cur = fmt(r); }
+          fresh = true;
+        } },
+        { k: "×", cls: "op", fn: function () { bin("×"); } },
+        { k: "4" }, { k: "5" }, { k: "6" },
+        { k: "eˣ", cls: "fn", fn: function () { cur = fmt(Math.exp(val())); fresh = true; } },
+        { k: "−", cls: "op", fn: function () { bin("−"); } },
+        { k: "1" }, { k: "2" }, { k: "3" },
+        { k: "±", cls: "fn", fn: function () { cur = fmt(-val()); } },
+        { k: "+", cls: "op", fn: function () { bin("+"); } },
+        { k: "0" }, { k: "." },
+        { k: "10ˣ", cls: "fn", fn: function () { cur = fmt(Math.pow(10, val())); fresh = true; } },
+        { k: "=", cls: "eq", fn: function () { if (op) applyOp(); acc = null; } }
+      ] : [
+        { k: "AC", cls: "fn", fn: function () { acc = null; cur = "0"; op = null; fresh = true; } },
+        { k: "CE", cls: "fn", fn: function () { cur = "0"; fresh = true; } },
+        { k: "%", cls: "fn", fn: function () { cur = fmt(val() / 100); fresh = true; } },
+        { k: "÷", cls: "op", fn: function () { bin("÷"); } },
+        { k: "7" }, { k: "8" }, { k: "9" },
+        { k: "×", cls: "op", fn: function () { bin("×"); } },
+        { k: "4" }, { k: "5" }, { k: "6" },
+        { k: "−", cls: "op", fn: function () { bin("−"); } },
+        { k: "1" }, { k: "2" }, { k: "3" },
+        { k: "+", cls: "op", fn: function () { bin("+"); } },
+        { k: "±", cls: "fn", fn: function () { cur = fmt(-val()); } },
+        { k: "0" }, { k: "." },
+        { k: "=", cls: "eq", fn: function () { if (op) applyOp(); acc = null; } }
+      ];
+      keys.forEach(function (item) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.textContent = item.k;
+        if (item.cls) b.className = item.cls;
+        b.addEventListener("click", function () {
+          if (item.fn) item.fn();
+          else digit(item.k);
+          show();
+        });
+        pad.appendChild(b);
       });
-      pad.appendChild(b);
+    }
+    sciBtn.addEventListener("click", function () {
+      sci = !sci;
+      cover.classList.toggle("sci", sci);
+      sciBtn.textContent = sci ? "Basic" : "Scientific";
+      build();
     });
+    build();
     show();
 
     function setOn(on) {
@@ -169,8 +198,8 @@
     window.addEventListener("keydown", function (e) {
       if (!cover.classList.contains("show")) return;
       e.stopPropagation();
-      if (e.key === "Escape") { setOn(false); e.preventDefault(); }
-      var map = { "/": "÷", "*": "×", "-": "−", "+": "+", Enter: "=", Escape: "AC" };
+      if (e.key === "Escape") { setOn(false); e.preventDefault(); return; }
+      var map = { "/": "÷", "*": "×", "-": "−", "+": "+", Enter: "=", "=": "=", "%": "%", ".": ".", Backspace: "CE" };
       var label = map[e.key] || e.key;
       var hit = Array.prototype.find.call(pad.children, function (c) { return c.textContent === label; });
       if (hit) { e.preventDefault(); hit.click(); }

@@ -36,14 +36,14 @@
     .board.shake { transform: translate(3px, -2px); }
     .board.win { box-shadow: 0 0 0 1px #3dd68c inset; }
     .cell {
-      aspect-ratio: 1; border: 0; border-radius: 5px; background: #232833; color: var(--text);
+      aspect-ratio: 1; border: 0; border-radius: 5px; background: var(--cell-2); color: var(--text);
       font: 700 13px/1 ui-monospace, SFMono-Regular, Menlo, monospace; cursor: pointer;
       transform: scale(1); transition: transform 90ms ease, background 90ms ease;
       touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
     }
-    .cell.open { background: #12151c; cursor: default; }
+    .cell.open { background: var(--cell); cursor: default; }
     .cell.mine { background: #3a1d22; color: #fb7185; animation: boom .28s ease; }
-    .cell.flag { background: #2a3140; color: #ffb020; }
+    .cell.flag { background: var(--key); color: #ffb020; }
     .cell.pop { transform: scale(1.12); }
     @keyframes boom { 0% { transform: scale(.6); } 70% { transform: scale(1.18); } 100% { transform: scale(1); } }
     .n1 { color: #6ea8ff; } .n2 { color: #3dd68c; } .n3 { color: #fb7185; }
