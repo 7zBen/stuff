@@ -39,15 +39,16 @@
     .kb { display: grid; gap: 6px; }
     .kb-row { display: flex; gap: 5px; justify-content: center; }
     .kb button {
-      flex: 1; min-height: 44px; max-width: 42px; border: 0; border-radius: 8px; background: var(--key);
-      color: var(--text); font: 600 13px/1 inherit; cursor: pointer; text-transform: uppercase;
+      flex: 1; min-height: 44px; max-width: 42px; border: 2px solid var(--line); border-radius: 8px;
+      background: var(--panel); color: var(--text); font: 600 13px/1 inherit; cursor: pointer;
+      text-transform: uppercase;
       touch-action: manipulation; -webkit-user-select: none; user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
     .kb button.wide { max-width: 64px; font-size: 12px; }
-    .kb button.good { background: var(--good); color: #0f1115; }
-    .kb button.mid { background: var(--mid); color: #0f1115; }
-    .kb button.bad { background: var(--key-bad); color: var(--text); }
+    .kb button.good { background: var(--good); color: #0f1115; border-color: var(--good); }
+    .kb button.mid { background: var(--mid); color: #0f1115; border-color: var(--mid); }
+    .kb button.bad { background: var(--key-bad, var(--muted)); color: var(--text); border-color: var(--line); }
     .actions { margin-top: 12px; }
     .actions button {
       width: 100%; appearance: none; background: var(--panel); border: 1px solid var(--line); color: var(--text);

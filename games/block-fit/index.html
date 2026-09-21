@@ -37,9 +37,10 @@
     .board-wrap.shake { transform: translate(2px, -1px); }
     .board {
       display: grid; grid-template-columns: repeat(8, 1fr); gap: var(--gap);
+      background: var(--line);
     }
     .cell {
-      aspect-ratio: 1; border-radius: 7px; background: var(--cell); border: 1px solid var(--cell-2);
+      aspect-ratio: 1; border-radius: 7px; background: var(--panel); border: 1px solid var(--line);
       transition: transform 120ms ease, background 80ms ease, opacity 180ms ease;
     }
     .cell.on { border-color: transparent; }
